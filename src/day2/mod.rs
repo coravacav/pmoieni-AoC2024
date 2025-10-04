@@ -1,7 +1,7 @@
 use std::{
     cmp::Ordering,
     fs,
-    io::{BufRead, BufReader},
+    io::{BufReader, Read},
 };
 
 use crate::day::Solution;
@@ -33,26 +33,37 @@ impl Solution for Day2 {
         let mut state = State::Neutral;
         let mut last_digit = None;
         let mut safe_count = 0;
+        let mut current_number: Option<i32> = None;
 
-        for line in reader.lines() {
-            let line = line.expect("no line");
-            for digit in line.split_whitespace() {
-                let digit: i32 = digit.parse().expect("couldn't parse number");
-                if last_digit.is_none() {
-                    last_digit = Some(digit);
-                    continue;
+        for character in reader.bytes() {
+            match character {
+                Ok(b' ') | Ok(b'\n') => {
+                    if let Some(parsed) = current_number {
+                        if last_digit.is_none() {
+                            last_digit = Some(parsed);
+                            current_number = None;
+                            continue;
+                        }
+
+                        state = match (last_digit.cmp(&Some(parsed)), &state) {
+                            (Ordering::Greater, State::Neutral) => State::Decreasing,
+                            (Ordering::Greater, State::Increasing) => break,
+                            (Ordering::Less, State::Neutral) => State::Increasing,
+                            (Ordering::Less, State::Decreasing) => break,
+                            (Ordering::Equal, State::Increasing | State::Decreasing) => break,
+                            _ => state,
+                        };
+
+                        safe_count += 1;
+                        current_number = None;
+                    }
                 }
-
-                state = match (last_digit.cmp(&Some(digit)), &state) {
-                    (Ordering::Greater, State::Neutral) => State::Decreasing,
-                    (Ordering::Greater, State::Increasing) => break,
-                    (Ordering::Less, State::Neutral) => State::Increasing,
-                    (Ordering::Less, State::Decreasing) => break,
-                    (Ordering::Equal, State::Increasing | State::Decreasing) => break,
-                    _ => state,
-                };
-
-                safe_count += 1;
+                Ok(b) if b.is_ascii_digit() => {
+                    let digit = (b - b'0') as i32;
+                    current_number = Some(current_number.unwrap_or(0) * 10 + digit);
+                }
+                Err(e) => panic!("error reading byte: {}", e),
+                _ => {}
             }
         }
 
