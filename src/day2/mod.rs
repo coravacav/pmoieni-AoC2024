@@ -45,16 +45,10 @@ impl Solution for Day2 {
 
                 state = match (last_digit.cmp(&Some(parsed)), &state) {
                     (Ordering::Greater, State::Neutral) => State::Decreasing,
-                    (Ordering::Greater, State::Increasing) => {
-                        break;
-                    }
+                    (Ordering::Greater, State::Increasing) => break,
                     (Ordering::Less, State::Neutral) => State::Increasing,
-                    (Ordering::Less, State::Decreasing) => {
-                        break;
-                    }
-                    (Ordering::Equal, State::Increasing | State::Decreasing) => {
-                        break;
-                    }
+                    (Ordering::Less, State::Decreasing) => break,
+                    (Ordering::Equal, State::Increasing | State::Decreasing) => break,
                     _ => state,
                 };
 
