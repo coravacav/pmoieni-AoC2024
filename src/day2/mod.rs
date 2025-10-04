@@ -37,13 +37,13 @@ impl Solution for Day2 {
         for line in reader.lines() {
             let line = line.expect("no line");
             for digit in line.split_whitespace() {
-                let parsed: i32 = digit.parse().expect("couldn't parse number");
+                let digit: i32 = digit.parse().expect("couldn't parse number");
                 if last_digit.is_none() {
-                    last_digit = Some(parsed);
+                    last_digit = Some(digit);
                     continue;
                 }
 
-                state = match (last_digit.cmp(&Some(parsed)), &state) {
+                state = match (last_digit.cmp(&Some(digit)), &state) {
                     (Ordering::Greater, State::Neutral) => State::Decreasing,
                     (Ordering::Greater, State::Increasing) => break,
                     (Ordering::Less, State::Neutral) => State::Increasing,
