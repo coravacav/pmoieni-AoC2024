@@ -1,4 +1,5 @@
 use std::{
+    cmp::Ordering,
     fs,
     io::{BufRead, BufReader},
 };
@@ -42,33 +43,23 @@ impl Solution for Day2 {
                     continue;
                 }
 
-                if last_digit > parsed {
-                    if matches!(state, State::Neutral) {
-                        state = State::Decreasing;
-                        continue;
-                    }
-
-                    if !matches!(state, State::Decreasing) {
-                        state = State::Neutral;
+                state = match (last_digit.cmp(&parsed), &state) {
+                    (Ordering::Greater, State::Neutral) => State::Decreasing,
+                    (Ordering::Greater, State::Increasing) => {
                         last_digit = -1;
                         break;
                     }
-                } else if last_digit < parsed {
-                    if matches!(state, State::Neutral) {
-                        state = State::Increasing;
-                        continue;
-                    }
-
-                    if !matches!(state, State::Increasing) {
-                        state = State::Neutral;
+                    (Ordering::Less, State::Neutral) => State::Increasing,
+                    (Ordering::Less, State::Decreasing) => {
                         last_digit = -1;
                         break;
                     }
-                } else if !matches!(state, State::Neutral) {
-                    state = State::Neutral;
-                    last_digit = -1;
-                    break;
-                }
+                    (Ordering::Equal, State::Increasing | State::Decreasing) => {
+                        last_digit = -1;
+                        break;
+                    }
+                    _ => state,
+                };
 
                 safe_count += 1;
             }
