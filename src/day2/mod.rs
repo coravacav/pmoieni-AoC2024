@@ -64,12 +64,10 @@ impl Solution for Day2 {
                         last_digit = -1;
                         break;
                     }
-                } else {
-                    if !matches!(state, State::Neutral) {
-                        state = State::Neutral;
-                        last_digit = -1;
-                        break;
-                    }
+                } else if !matches!(state, State::Neutral) {
+                    state = State::Neutral;
+                    last_digit = -1;
+                    break;
                 }
 
                 safe_count += 1;
